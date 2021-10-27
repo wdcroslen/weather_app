@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
-import 'package:weatherapp/WeatherPage.dart';
+import 'WeatherPage.dart';
 
-List items = ['mostly sunny','sunny'];
+List items = ["mostly cloudy","rain","mostly sunny","showers","mostly cloudy","rain","rain","mostly sunny","rain","showers","showers","rain","sunny","mostly sunny","showers"];
 List dates = ['October 1st', 'October 2nd'];
 List images = [];
 var webService = "http://cheon.atwebpages.com/weather/?zip=";
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.lightGreen,
       ),
       home: RequestScreen(title: 'Weather App'),
     );
@@ -42,10 +42,45 @@ class _MyHomePageState extends State<RequestScreen> {
 
   _notEmpty(String value) => value != null && value.isNotEmpty;
 
-    getForecast() {
-      images = Forecast().getImages();
-      //items = await Forecast().getResponse(Uri.parse(webService + _zip['zipcode'] + '&days=1'));
-  }
+   nextPage(){
+     Navigator.push(
+       context,
+       MaterialPageRoute(builder: (context) => SecondPage()),
+     );
+   }
+    getForecast(String numDays) async {
+      RegExp _isLetter = RegExp(r'[a-z]', caseSensitive: false);
+      var a = await Forecast().getResponse(Uri.parse(webService + _zip['zipcode'] + '&days=$numDays'));
+      print("________________________________________________________________________________");
+      if(numDays == '1') {
+        var days = a.body.substring(2,((a.body).length-2));
+        items = [];
+        items.add(days);
+      }
+      else {
+        var days = a.body.split(',');
+        print(days);
+        for(int i = 0; i < days.length; i++) {
+          print(days[i]);
+          if (i==0) {
+            days[i] = days[i].substring(2, days[i].length - 1);
+          } else if (i==days.length-1){
+          days[i] = days[i].substring(1, days[i].length - 2);
+        } else {
+            days[i] = days[i].substring(1, days[i].length - 1);
+          }
+        }
+        print(days);
+        items = days;
+
+      }
+//      // print("________________________________________________________________________________");
+//      print(items);
+//      print('hi');
+      nextPage();
+//      dates = Forecast().getDates(15);
+      images = Forecast().getImages();// print("________________________________________________________________________________");
+    }
 
   get _zip =>
       ({
@@ -90,38 +125,41 @@ class _MyHomePageState extends State<RequestScreen> {
                       child: Text('1 Day'),
                       onPressed: () {
                         if (Form.of(context)!.validate()) {
-                            getForecast();
-                            dates = Forecast().getDates(2);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SecondPage()),
-                            );
+                            getForecast('1');
+                            dates = Forecast().getDates(1);
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => SecondPage()),
+                            // );
                         }
                       },
                     ),
+                    SizedBox(width: 10),
                     ElevatedButton(
                       child: Text('5 Days'),
                       onPressed: () {
                         if (Form.of(context)!.validate()) {
-                          getForecast();
+                          getForecast('5');
                           dates = Forecast().getDates(5);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SecondPage()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => SecondPage()),
+                          // );
                         }
                       },
                     ),
+                    SizedBox(width: 10),
                     ElevatedButton(
                       child: Text('10 Days'),
                       onPressed: () {
                         if (Form.of(context)!.validate()) {
-                          getForecast();
+                          getForecast('10');
                           dates = Forecast().getDates(10);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SecondPage()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => SecondPage()),
+                          // );
+                          //
                         }
                       },
                     ),
@@ -133,8 +171,13 @@ class _MyHomePageState extends State<RequestScreen> {
                   ],
                 );
               }),
+              SizedBox(height: 250),
+              Image.asset('assets/images/sunny.png',
+                  width: 150,
+                  height: 150,
+                  fit:BoxFit.fill
 
-            ],
+              )],
           ),
         ),
       )
@@ -169,7 +212,13 @@ class Forecast {
 
   List getDates(int numberOfDays) {
     List dates = [];
-
+    if (numberOfDays ==0){
+      DateTime currDate = DateTime.now();
+      String currentDate = new DateTime(currDate.year, currDate.month, currDate.day).toString();
+      List rand = currentDate.split(" ");
+      dates.add(rand[0]);
+      return dates;
+    }
     for (int i = 0; i<numberOfDays; i ++) {
       DateTime currDate = DateTime.now().add(Duration(days: i));
       String currentDate = new DateTime(currDate.year, currDate.month, currDate.day).toString();

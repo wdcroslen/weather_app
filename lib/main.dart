@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.lightGreen,
       ),
       home: RequestScreen(title: 'Weather App'),
     );
@@ -42,12 +42,20 @@ class _MyHomePageState extends State<RequestScreen> {
 
   _notEmpty(String value) => value != null && value.isNotEmpty;
 
+   nextPage(){
+     Navigator.push(
+       context,
+       MaterialPageRoute(builder: (context) => SecondPage()),
+     );
+   }
     getForecast(String numDays) async {
       RegExp _isLetter = RegExp(r'[a-z]', caseSensitive: false);
       var a = await Forecast().getResponse(Uri.parse(webService + _zip['zipcode'] + '&days=$numDays'));
       print("________________________________________________________________________________");
       if(numDays == '1') {
-        print(a.body.substring(2,((a.body).length-2)));
+        var days = a.body.substring(2,((a.body).length-2));
+        items = [];
+        items.add(days);
       }
       else {
         var days = a.body.split(',');
@@ -64,10 +72,12 @@ class _MyHomePageState extends State<RequestScreen> {
         }
         print(days);
         items = days;
+
       }
       // print("________________________________________________________________________________");
       print(items);
       print('hi');
+      nextPage();
       images = Forecast().getImages();// print("________________________________________________________________________________");
     }
 
@@ -116,36 +126,39 @@ class _MyHomePageState extends State<RequestScreen> {
                         if (Form.of(context)!.validate()) {
                             getForecast('1');
                             dates = Forecast().getDates(1);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => SecondPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => SecondPage()),
+                            // );
                         }
                       },
                     ),
+                    SizedBox(width: 10),
                     ElevatedButton(
                       child: Text('5 Days'),
                       onPressed: () {
                         if (Form.of(context)!.validate()) {
                           getForecast('5');
                           dates = Forecast().getDates(5);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SecondPage()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => SecondPage()),
+                          // );
                         }
                       },
                     ),
+                    SizedBox(width: 10),
                     ElevatedButton(
                       child: Text('10 Days'),
                       onPressed: () {
                         if (Form.of(context)!.validate()) {
                           getForecast('10');
                           dates = Forecast().getDates(10);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => SecondPage()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => SecondPage()),
+                          // );
+                          //
                         }
                       },
                     ),
@@ -193,7 +206,13 @@ class Forecast {
 
   List getDates(int numberOfDays) {
     List dates = [];
-
+    if (numberOfDays ==0){
+      DateTime currDate = DateTime.now();
+      String currentDate = new DateTime(currDate.year, currDate.month, currDate.day).toString();
+      List rand = currentDate.split(" ");
+      dates.add(rand[0]);
+      return dates;
+    }
     for (int i = 0; i<numberOfDays; i ++) {
       DateTime currDate = DateTime.now().add(Duration(days: i));
       String currentDate = new DateTime(currDate.year, currDate.month, currDate.day).toString();

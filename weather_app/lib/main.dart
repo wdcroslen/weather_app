@@ -4,7 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:weatherapp/WeatherPage.dart';
 
 List items = ['mostly sunny','sunny'];
-List dates = [];
+List dates = ['October 1st', 'October 2nd'];
+List images = [];
 var webService = "http://cheon.atwebpages.com/weather/?zip=";
 //http://www.cs.utep.edu/cheon/cs4381/homework/weather/?zip= "your zip code here" &days= "number of days"
 //http://cheon.atwebpages.com/weather/?zip=79938&days=1
@@ -41,9 +42,9 @@ class _MyHomePageState extends State<RequestScreen> {
 
   _notEmpty(String value) => value != null && value.isNotEmpty;
 
-  getForecast() async {
-    items = await Forecast().getResponse(Uri.parse(webService + _zip['zipcode'] + '&days=1'));
-    print(items);
+    getForecast() {
+      images = Forecast().getImages();
+      //items = await Forecast().getResponse(Uri.parse(webService + _zip['zipcode'] + '&days=1'));
   }
 
   get _zip =>
@@ -94,7 +95,6 @@ class _MyHomePageState extends State<RequestScreen> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(builder: (context) => SecondPage()),
-                              //  ImageDescription(imageData: ImageData('title', 'url', 'description', 'tag'),)));
                             );
                         }
                       },
@@ -108,7 +108,19 @@ class _MyHomePageState extends State<RequestScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => SecondPage()),
-                            //  ImageDescription(imageData: ImageData('title', 'url', 'description', 'tag'),)));
+                          );
+                        }
+                      },
+                    ),
+                    ElevatedButton(
+                      child: Text('10 Days'),
+                      onPressed: () {
+                        if (Form.of(context)!.validate()) {
+                          getForecast();
+                          dates = Forecast().getDates(10);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SecondPage()),
                           );
                         }
                       },
@@ -165,9 +177,24 @@ class Forecast {
       dates.add(rand[0]);
     }
 
-    print(dates);
     return dates;
   }
+
+
+  getImages() {
+    List im = [];
+
+    for (int i = 0; i<items.length; i++) {
+      List status = items[i].split(" ");
+      if (status.length > 1){
+        im.add('mostly_' + status[status.length-1] + '.png');
+      } else {
+        im.add(status[status.length-1] + '.png');
+      }
+    }
+    return im;
+  }
+
 
 
   Image image() => Image.asset('assets/image/${_images[description]}');

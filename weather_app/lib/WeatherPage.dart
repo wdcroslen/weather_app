@@ -32,8 +32,8 @@ class SecondPage extends StatelessWidget {
 //                              Image(),
                               Text("${dates[index]}",style: TextStyle(color: Colors.orange,fontSize: 20,fontWeight: FontWeight.bold),),
                               Text("${items[index]}",style: TextStyle(color: Colors.black,fontSize: 20,fontWeight: FontWeight.bold)),
-                              Image.asset(
-                                  'assets/images/Cloud.png',
+                              Image.asset('assets/images/' +
+                                  images[index],
                                   width: 100,
                                   height: 100,
                                   fit:BoxFit.fill
